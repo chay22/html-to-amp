@@ -4,10 +4,8 @@ namespace Predmond\HtmlToAmp;
 
 use League\Event\Emitter;
 use League\Event\EmitterInterface;
-use Predmond\HtmlToAmp\Converter\ConverterInterface;
+use Predmond\HtmlToAmp\Converter\ConverterInterface as Converter;
 use Predmond\HtmlToAmp\Converter\ImageConverter;
-use Predmond\HtmlToAmp\Converter\NullConverter;
-use Predmond\HtmlToAmp\Converter\ProhibitedConverter;
 
 class Environment
 {
@@ -28,33 +26,31 @@ class Environment
     public static function createDefaultEnvironment()
     {
         $env = new static();
-        $env->addConverter(new ImageConverter());
+        $env->addListener(new ImageConverter());
 
         return $env;
     }
 
-    public function addConverter(ConverterInterface $converter)
+    public function addListener(Converter $listener, $priority = EmitterInterface::P_NORMAL)
     {
-        foreach ($converter->getSubscribedEvents() as $tag => $event) {
-            $eventName = stripos($tag, 'amp.') === 0 ?
-                $tag : "amp.{$tag}";
-
-            if (is_string($event)) {
-                $event = [$event];
-            }
-
-            $event = array_values($event);
-            list($callbackName, $priority) = count($event) > 1 ?
-                [$event[0], $event[1]] : [$event[0], EmitterInterface::P_NORMAL];
-
-            $this->eventEmitter->addListener(
-                $eventName,
-                [$converter, $callbackName],
-                $priority
-            );
+        foreach ($listener->getSubscribedEvents() as $tag => $method) {
+            $this->createEvent($tag, $listener, $method, $priority);
         }
 
         return $this;
+    }
+
+    protected function createEvent($event, $listener, $method, $priority = EmitterInterface::P_NORMAL)
+    {
+        $method = (array) $method;
+
+        $priority = count($method) > 1 ? $method[1] : $priority;
+
+        $method = $method[0];
+
+        $this->eventEmitter->addListener(
+            "amp.$event", [$listener, $method], $priority
+        );
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace Predmond\HtmlToAmp;
 
 use DOMDocument;
+use DOMNode;
 use Predmond\HtmlToAmp\Converter\ConverterInterface;
+use League\Event\EmitterInterface as Emitter;
 
 class AmpConverter
 {
@@ -24,7 +26,7 @@ class AmpConverter
             return '';
         }
 
-        $document = $this->createDocument($html);
+        $document = $this->loadHtml($html);
 
         if (!($root = $document->getElementsByTagName('html')->item(0))) {
             throw new \InvalidArgumentException('Invalid HTML was provided');
@@ -33,33 +35,12 @@ class AmpConverter
         $root = new Element($root);
         $this->convertChildren($root);
 
-        $this->environment->getEventEmitter()->emit('after.convert', $document);
-
-        $this->removeProhibited($document);
-        $this->removeProhibitedAttributes($document);
-
-        $this->environment->getEventEmitter()->emit('before.sanitize', $document);
-
-        $ampHtml = $this->sanitize($document->saveHTML());
-
-        return $ampHtml;
+        return $this->saveHtml($document);
     }
 
-    /**
-     * @param string $html
-     *
-     * @return \DOMDocument
-     */
-    private function createDocument($html)
+    public function addConverter(ConverterInterface $listener, $priority = Emitter::P_NORMAL)
     {
-        $document = new DOMDocument();
-
-        libxml_use_internal_errors(true);
-        $document->loadHTML('<?xml encoding="UTF-8">' . $html);
-        $document->encoding = 'UTF-8';
-        libxml_clear_errors();
-
-        return $document;
+        return $this->environment->addListener($Listener, $priority);
     }
 
     private function convertChildren(ElementInterface $element)
@@ -82,6 +63,33 @@ class AmpConverter
             ->emit("convert.{$tag}", $element, $tag);
     }
 
+    /**
+     * @param string $html
+     *
+     * @return \DOMDocument
+     */
+    protected function loadHtml($html)
+    {
+        $document = new DOMDocument();
+
+        libxml_use_internal_errors(true);
+        $document->loadHTML('<?xml encoding="UTF-8">' . $html);
+        $document->encoding = 'UTF-8';
+        libxml_clear_errors();
+
+        return $document;
+    }
+
+    protected function saveHtml(DOMNode $document)
+    {
+        return str_replace(
+            '<?xml encoding="UTF-8">', '', $document->saveHTML()
+        );
+    }
+
+    /**
+     * @deprecated
+     */
     private function sanitize($html)
     {
         $html = preg_replace('/<!DOCTYPE [^>]+>/', '', $html);
@@ -92,6 +100,9 @@ class AmpConverter
         return $html;
     }
 
+    /**
+     * @deprecated
+     */
     private function removeProhibited(\DOMDocument $document)
     {
         // TODO: Config-based
@@ -138,6 +149,7 @@ class AmpConverter
     }
 
     /**
+     * @deprecated
      * Removed prohibited attributes
      *
      * @param \DOMDocument $document
@@ -180,6 +192,9 @@ class AmpConverter
         }
     }
 
+    /**
+     * @deprecated
+     */
     private function removeElementAttributes(
         \DOMElement $node,
         array $attributes = []
