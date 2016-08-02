@@ -36,8 +36,8 @@ class Environment
     public function addConverter(ConverterInterface $converter)
     {
         foreach ($converter->getSubscribedEvents() as $tag => $event) {
-            $eventName = stripos($tag, 'convert.') === 0 ?
-                $tag : "convert.{$tag}";
+            $eventName = stripos($tag, 'amp.') === 0 ?
+                $tag : "amp.{$tag}";
 
             if (is_string($event)) {
                 $event = [$event];
