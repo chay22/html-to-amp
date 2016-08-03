@@ -258,10 +258,12 @@ class Spec
         return $this->isWhitelisted($element);
     }
 
-    public function isRelated($element)
+    public function isRelated($element, $parent = null)
     {
         $element = is_array($element) ?
                $this->toDot($element) : $element;
+
+        $element = ! is_null($parent) ? $parent.'.'.$element : $element;
 
         return in_array(
             $element, $this->getRelation()
@@ -273,8 +275,12 @@ class Spec
         $results = [];
 
         foreach ($array as $key => $values) {
-            foreach ($values as $value) {
-                $results[] = "$key.$value";
+            if (is_array($values)) {
+                foreach ($values as $value) {
+                    $results[] = $key.'.'.$value;
+                }
+            } else {
+                $results[] = $key.'.'.$value;
             }
         }
 
