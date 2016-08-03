@@ -7,10 +7,21 @@ use Predmond\HtmlToAmp\ElementInterface;
 
 class ElementSanitizer extends Sanitizer
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $events = [
-        'html' => 'sanitize'
+        'html' => 'sanitize',
     ];
 
+    /**
+     * Sanitize every element's descendant from prohibited element.
+     *
+     * @param EventInterface   $event
+     * @param ElementInterface $element
+     *
+     * @return ElementInterface
+     */
     public function sanitize(EventInterface $event, ElementInterface $element)
     {
         foreach ($element->getChildren() as $child) {
@@ -21,9 +32,9 @@ class ElementSanitizer extends Sanitizer
     }
 
     /**
-     * Remove any element which is not present in whitelist.
+     * Remove any element which is not present in specification list.
      *
-     * @param \Predmond\HtmlToAmp\ElementInterface $element Any body element's child.
+     * @param ElementInterface $element
      *
      * @return void
      */
@@ -37,13 +48,20 @@ class ElementSanitizer extends Sanitizer
 
         $tagName = $this->getTagName($element);
 
-        //Since node name that is started with '#' such as '#text' is converted
-        //into null, it should be skippped from removal.
-        if (! is_null($tagName) && ! $this->spec->isAllowed($tagName)) {
+        if (!is_null($tagName) && !$this->spec->isAllowed($tagName)) {
             $element->remove();
         }
     }
 
+    /**
+     * Return a tag name that has no '#'.
+     *
+     * This used to exclude any node such as '#text'
+     *
+     * @param \DOMNode $element
+     *
+     * @return string|null
+     */
     protected function getTagName($element)
     {
         if (strpos($element->getTagName(), '#') === false) {

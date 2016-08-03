@@ -9,6 +9,9 @@ use League\Event\EmitterInterface as Emitter;
 
 class AmpConverter
 {
+    /**
+     * @var [type]
+     */
     protected $environment;
 
     public function __construct(Environment $env = null)
@@ -20,6 +23,15 @@ class AmpConverter
         }
     }
 
+    /**
+     * Convert an HTML string into AMP HTML.
+     *
+     * @api
+     *
+     * @param string $html
+     *
+     * @return string
+     */
     public function convert($html)
     {
         if (trim($html) === '') {
@@ -38,6 +50,14 @@ class AmpConverter
         return $this->saveHtml($document);
     }
 
+    /**
+     * Add an additional converter class.
+     *
+     * @param ConverterInterface $listener The converter class.
+     * @param int                $priority
+     *
+     * @return Environtment
+     */
     public function addConverter(ConverterInterface $listener, $priority = Emitter::P_NORMAL)
     {
         return $this->environment->addListener($Listener, $priority);
@@ -58,28 +78,37 @@ class AmpConverter
     {
         $tag = $element->getTagName();
 
-        /** @var ConverterInterface $converter */
+        /* @var ConverterInterface $converter */
         $event = $this->environment->getEventEmitter()
             ->emit('amp.'.$tag, $element, $tag);
     }
 
     /**
+     * Load an HTML string into document.
+     *
      * @param string $html
      *
-     * @return \DOMDocument
+     * @return DOMDocument
      */
     protected function loadHtml($html)
     {
         $document = new DOMDocument();
 
         libxml_use_internal_errors(true);
-        $document->loadHTML('<?xml encoding="UTF-8">' . $html);
+        $document->loadHTML('<?xml encoding="UTF-8">'.$html);
         $document->encoding = 'UTF-8';
         libxml_clear_errors();
 
         return $document;
     }
 
+    /**
+     * Convert a document object into HTML string.
+     *
+     * @param DOMNode $document
+     *
+     * @return string
+     */
     protected function saveHtml(DOMNode $document)
     {
         return str_replace(
@@ -106,7 +135,7 @@ class AmpConverter
     private function removeProhibited(\DOMDocument $document)
     {
         // TODO: Config-based
-        $xpath = '//' . implode('|//', [
+        $xpath = '//'.implode('|//', [
             'base',
             'frame',
             'frameset',
@@ -165,10 +194,10 @@ class AmpConverter
             'style',
         ];
 
-        /**
+        /*
          * Example xpath: "//*[@align]|//*[@style]"
          */
-        $xpath = '//*[@' . implode(']|//*[@', $invalidAttributes) . ']';
+        $xpath = '//*[@'.implode(']|//*[@', $invalidAttributes).']';
         $elements = (new \DOMXPath($document))->query($xpath);
 
         /** @var \DOMElement $element */

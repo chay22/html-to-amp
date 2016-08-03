@@ -11,29 +11,42 @@ class ScopeValidation extends Sanitizer
      * {@inheritdoc}
      */
     protected $events = [
-        '*' => ['handleElementScope', 150]
+        '*' => ['handleElementScope', 50],
     ];
 
-
+    /**
+     * Remove element that is not in right scope.
+     *
+     * @param EventInterface   $event
+     * @param ElementInterface $element
+     *
+     * @return ElementInterface
+     */
     public function handleElementScope(EventInterface $event, ElementInterface $element)
     {
-
         $child = $element->getTagName();
         $parent = $element->getParent()->getTagName();
 
         //Skip this removal if current element isn't defined in spec context
         //as child value
-        if (! in_array($child, $this->getElementFromSpec())) {
+        if (!in_array($child, $this->getElementFromSpec())) {
             return $element;
         }
 
-        if (! $this->spec->isRelated($parent.'.'.$child)) {
+        if (!$this->spec->isRelated($parent.'.'.$child)) {
             $element->remove();
         }
 
         return $element;
     }
 
+    /**
+     * Get each allowed child elements from spec.
+     *
+     * @see  \Predmond\HtmlToAmp\Spec::$relation
+     *
+     * @return array
+     */
     protected function getElementFromSpec()
     {
         $elements = [];

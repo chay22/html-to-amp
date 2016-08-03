@@ -4,6 +4,11 @@ namespace Predmond\HtmlToAmp;
 
 class Spec
 {
+    /**
+     * Whitelist element.
+     *
+     * @var array
+     */
     protected $element = [
         'html', 'head', 'body',
 
@@ -106,6 +111,13 @@ class Spec
         'amp-youtube',
     ];
 
+    /**
+     * The element context.
+     *
+     * Key of array is the parent and value is its allowed child.
+     *
+     * @var array
+     */
     protected $relation = [
         'head' => [
             'title', 'base', 'link', 'meta', 'style', 'script',
@@ -234,11 +246,28 @@ class Spec
         ],
     ];
 
+    /**
+     * Return whitelisted elements.
+     *
+     * @return array Returned value will first get any duplication removed.
+     */
     public function getWhitelist()
     {
         return array_unique($this->element);
     }
 
+    /**
+     * Return an array of allowed context.
+     *
+     * By default, the array returned will be flatten into single dimension
+     * where the original key will be defined along with its value with a
+     * dot notation. Example, "head.title".
+     *
+     * @param bool $dot Set the returned value with dot or multi-
+     *                  dimensional array.
+     *
+     * @return array
+     */
     public function getRelation($dot = true)
     {
         if ($dot) {
@@ -248,28 +277,61 @@ class Spec
         return $this->relation;
     }
 
+    /**
+     * Check that given element is present in whitelist.
+     *
+     * @param string $element
+     *
+     * @return bool
+     */
     public function isWhitelisted($element)
     {
         return in_array($element, $this->getWhitelist());
     }
 
+    /**
+     * @see Spec::isWhitelisted()
+     */
     public function isAllowed($element)
     {
         return $this->isWhitelisted($element);
     }
 
+    /**
+     * Check if given elements has a relation.
+     *  
+     * @param string|array $element This accepts string key-value pair
+     *                              concatenated by a dot, and array
+     *                              with a key-value pair, or a normal
+     *                              string representing a child element.
+     * @param null|string  $parent  Parent element. This needs to be set
+     *                              if the _element_ argument is filled
+     *                              with child element.
+     *
+     * @return bool
+     */
     public function isRelated($element, $parent = null)
     {
         $element = is_array($element) ?
                $this->toDot($element) : $element;
 
-        $element = ! is_null($parent) ? $parent.'.'.$element : $element;
+        $hasDot = strpos('.', $element) !== false;
+        $element = !is_null($parent) && !$hasDot ?
+            $parent.'.'.$element : $element;
 
         return in_array(
             $element, $this->getRelation()
         );
     }
 
+    /**
+     * Flatten associative array into array with value contained with
+     * key and value pair concatenated by dot.
+     *
+     * @param array $array
+     *
+     * @return array
+     */
     protected function toDot($array)
     {
         $results = [];

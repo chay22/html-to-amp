@@ -35,6 +35,18 @@ class Environment
         return $env;
     }
 
+    /**
+     * Add a listener for events.
+     *
+     * The events should have been defined inside the listener class.
+     *
+     * @see  Environment::createEvent()
+     *
+     * @param Converter $listener Listener class.
+     * @param int       $priority
+     *
+     * @return Environment
+     */
     public function addListener(Converter $listener, $priority = EmitterInterface::P_NORMAL)
     {
         foreach ($listener->getSubscribedEvents() as $tag => $method) {
@@ -44,6 +56,20 @@ class Environment
         return $this;
     }
 
+    /**
+     * Create an event.
+     *
+     * @param string       $event    The event name which identified by tag name.
+     *                               The event will then prefixed by 'amp' unless
+     *                               wildcard (*) event is given.
+     * @param Converter    $listener Listener class.
+     * @param array|string $method   The method of listener should get invoked.
+     *                               If an array given, the 2nd value will identified
+     *                               as event priority.
+     * @param int          $priority
+     *
+     * @return void
+     */
     protected function createEvent($event, $listener, $method, $priority = EmitterInterface::P_NORMAL)
     {
         $method = (array) $method;
