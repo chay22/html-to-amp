@@ -316,7 +316,8 @@ class Spec
                $this->toDot($element) : $element;
 
         $hasDot = strpos('.', $element) !== false;
-        $element = !is_null($parent) && !$hasDot ?
+
+        $element = ! is_null($parent) && ! $hasDot ?
             $parent.'.'.$element : $element;
 
         return in_array(
