@@ -5,6 +5,8 @@ namespace Predmond\HtmlToAmp;
 use League\Event\Emitter;
 use League\Event\EmitterInterface;
 use Predmond\HtmlToAmp\Converter\ConverterInterface as Converter;
+use Predmond\HtmlToAmp\Sanitizer\ElementSanitizer;
+use Predmond\HtmlToAmp\Sanitizer\ScopeValidation;
 use Predmond\HtmlToAmp\Converter\ImageConverter;
 
 class Environment
@@ -26,6 +28,8 @@ class Environment
     public static function createDefaultEnvironment()
     {
         $env = new static();
+        $env->addListener(new ElementSanitizer(), 200);
+        $env->addListener(new ScopeValidation());
         $env->addListener(new ImageConverter());
 
         return $env;
@@ -48,8 +52,10 @@ class Environment
 
         $method = $method[0];
 
+        $event = $event !== '*' ? "amp.$event" : '*';
+
         $this->eventEmitter->addListener(
-            "amp.$event", [$listener, $method], $priority
+            $event, [$listener, $method], $priority
         );
     }
 

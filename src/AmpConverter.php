@@ -60,7 +60,7 @@ class AmpConverter
 
         /** @var ConverterInterface $converter */
         $event = $this->environment->getEventEmitter()
-            ->emit("convert.{$tag}", $element, $tag);
+            ->emit("amp.{$tag}", $element, $tag);
     }
 
     /**
