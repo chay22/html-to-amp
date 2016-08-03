@@ -21,7 +21,7 @@ class EnvironmentSpec extends ObjectBehavior
         $this->shouldHaveType('Predmond\HtmlToAmp\Environment');
     }
 
-    public function it_can_add_a_converter(
+    public function it_can_add_a_listener(
         ConverterInterface $converter,
         Emitter $emitter
     ) {
@@ -33,40 +33,40 @@ class EnvironmentSpec extends ObjectBehavior
             ->getSubscribedEvents()->shouldBeCalled()
             ->willReturn([
                 'img' => 'handleImg',
-                'convert.foo' => ['handleFoo', $pHigh],
-                'convert.bar' => ['handleBar', $pLow],
+                'foo' => ['handleFoo', $pHigh],
+                'bar' => ['handleBar', $pLow],
                 // Bad handlers to check the automatic prepending of "convert."
-                'convertfizz' => ['badFizzHandler'],
-                'convert..buzz' => ['badBuzzHandler'],
+                'fizz' => ['badFizzHandler'],
+                'buzz' => ['badBuzzHandler'],
             ]);
 
         $emitter
-            ->addListener('convert.img', [$converter, 'handleImg'], $pNormal)
+            ->addListener('amp.img', [$converter, 'handleImg'], $pNormal)
             ->shouldBeCalled();
 
         $emitter
-            ->addListener('convert.foo', [$converter, 'handleFoo'], $pHigh)
+            ->addListener('amp.foo', [$converter, 'handleFoo'], $pHigh)
             ->shouldBeCalled();
 
         $emitter
-            ->addListener('convert.bar', [$converter, 'handleBar'], $pLow)
+            ->addListener('amp.bar', [$converter, 'handleBar'], $pLow)
             ->shouldBeCalled();
 
         $emitter
             ->addListener(
-                'convert.convertfizz',
+                'amp.fizz',
                 [$converter, 'badFizzHandler'], $pNormal
             )
             ->shouldBeCalled();
 
         $emitter
             ->addListener(
-                'convert..buzz',
+                'amp.buzz',
                 [$converter, 'badBuzzHandler'], $pNormal
             )
             ->shouldBeCalled();
 
-        $this->addConverter($converter)->shouldReturn($this);
+        $this->addListener($converter)->shouldReturn($this);
     }
 
     public function it_returns_the_event_emitter()
