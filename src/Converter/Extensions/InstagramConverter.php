@@ -40,7 +40,7 @@ class InstagramConverter implements ConverterInterface
                 
     }
 
-    public function handleInstagram( EventInterface $event, ElementInterface $element) {
+    public function handleInstagram(EventInterface $event, ElementInterface $element) {
 
         if ($this->convertToAmp($element) == false) {
             return;
