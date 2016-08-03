@@ -2,6 +2,7 @@
 
 namespace Predmond\HtmlToAmp\Sanitizer;
 
+use Predmond\HtmlToAmp\Converter\ConverterInterface;
 use Predmond\HtmlToAmp\Spec;
 
 abstract class Sanitizer implements ConverterInterface
