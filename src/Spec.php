@@ -261,10 +261,10 @@ class Spec
      *
      * By default, the array returned will be flatten into single dimension
      * where the original key will be defined along with its value with a
-     * dot notation. Example, "head.title".
+     * dot notation. Example, `head.title`.
      *
-     * @param bool $dot Set the returned value with dot or multi-
-     *                  dimensional array.
+     * @param bool $dot Set the returned value with dot or multi-dimensional
+     *                  array.
      *
      * @return array
      */

@@ -10,7 +10,7 @@ use League\Event\EmitterInterface as Emitter;
 class AmpConverter
 {
     /**
-     * @var [type]
+     * @var Environment
      */
     protected $environment;
 
@@ -53,6 +53,8 @@ class AmpConverter
     /**
      * Add an additional converter class.
      *
+     * @api
+     * 
      * @param ConverterInterface $listener The converter class.
      * @param int                $priority
      *

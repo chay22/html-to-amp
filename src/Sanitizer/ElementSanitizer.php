@@ -15,7 +15,7 @@ class ElementSanitizer extends Sanitizer
     ];
 
     /**
-     * Sanitize every element's descendant from prohibited element.
+     * Sanitize every element's descendant from prohibited elements.
      *
      * @param EventInterface   $event
      * @param ElementInterface $element
@@ -34,6 +34,8 @@ class ElementSanitizer extends Sanitizer
     /**
      * Remove any element which is not present in specification list.
      *
+     * @see  \Predmond\HtmlToAmp\Spec::$element
+     * 
      * @param ElementInterface $element
      *
      * @return void
@@ -54,9 +56,9 @@ class ElementSanitizer extends Sanitizer
     }
 
     /**
-     * Return a tag name that has no '#'.
+     * Return a tag name that has no `#`.
      *
-     * This used to exclude any node such as '#text'
+     * This used to exclude any node such as `#text`
      *
      * @param \DOMNode $element
      *
