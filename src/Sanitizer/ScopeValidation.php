@@ -27,7 +27,7 @@ class ScopeValidation extends Sanitizer
             return $element;
         }
 
-        if (! $this->spec->isRelated("$parent.$child")) {
+        if (! $this->spec->isRelated($parent.'.'.$child)) {
             $element->remove();
         }
 
