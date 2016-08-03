@@ -25,15 +25,18 @@ class ScopeValidation extends Sanitizer
     public function handleElementScope(EventInterface $event, ElementInterface $element)
     {
         $child = $element->getTagName();
-        $parent = $element->getParent()->getTagName();
+
+        if (! is_null($parent = $element->getParent())) {
+            $parent = $parent->getTagName();
+        }
 
         //Skip this removal if current element isn't defined in spec context
         //as child value
-        if (!in_array($child, $this->getElementFromSpec())) {
+        if (! in_array($child, $this->getElementFromSpec())) {
             return $element;
         }
 
-        if (!$this->spec->isRelated($parent.'.'.$child)) {
+        if (! is_null($parent) && ! $this->spec->isRelated($parent.'.'.$child)) {
             $element->remove();
         }
 

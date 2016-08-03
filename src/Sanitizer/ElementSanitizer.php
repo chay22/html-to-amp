@@ -24,10 +24,11 @@ class ElementSanitizer extends Sanitizer
      */
     public function sanitize(EventInterface $event, ElementInterface $element)
     {
-        foreach ($element->getChildren() as $child) {
-            $this->removeProhibitedTag($child);
+        if ($element->hasChildren()) {
+            foreach ($element->getChildren() as $child) {
+                $this->removeProhibitedTag($child);
+            }
         }
-
         return $element;
     }
 
@@ -50,7 +51,7 @@ class ElementSanitizer extends Sanitizer
 
         $tagName = $this->getTagName($element);
 
-        if (!is_null($tagName) && !$this->spec->isAllowed($tagName)) {
+        if (! is_null($tagName) && !$this->spec->isAllowed($tagName)) {
             $element->remove();
         }
     }

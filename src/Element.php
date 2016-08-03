@@ -69,7 +69,8 @@ class Element implements ElementInterface
      */
     public function getParent()
     {
-        return new static($this->node->parentNode) ?: null;
+        return ! is_null($parent = $this->node->parentNode) ?
+                new static($parent) : null;
     }
 
     /**

@@ -40,12 +40,11 @@ class AmpConverter
 
         $document = $this->loadHtml($html);
 
-        if (!($root = $document->getElementsByTagName('html')->item(0))) {
+        if (! $document->getElementsByTagName('html')->item(0)) {
             throw new \InvalidArgumentException('Invalid HTML was provided');
         }
 
-        $root = new Element($root);
-        $this->convertChildren($root);
+        $this->convertChildren(new Element($document));
 
         return $this->saveHtml($document);
     }
@@ -62,7 +61,7 @@ class AmpConverter
      */
     public function addConverter(ConverterInterface $listener, $priority = Emitter::P_NORMAL)
     {
-        return $this->environment->addListener($Listener, $priority);
+        return $this->environment->addListener($listener, $priority);
     }
 
     private function convertChildren(ElementInterface $element)
@@ -98,6 +97,13 @@ class AmpConverter
 
         libxml_use_internal_errors(true);
         $document->loadHTML('<?xml encoding="UTF-8">'.$html);
+
+        foreach ($document->childNodes as $node) {
+            if ($node->nodeType == XML_PI_NODE) {
+                $document->removeChild($node);
+            }
+        }
+
         $document->encoding = 'UTF-8';
         libxml_clear_errors();
 
@@ -113,9 +119,7 @@ class AmpConverter
      */
     protected function saveHtml(DOMNode $document)
     {
-        return str_replace(
-            '<?xml encoding="UTF-8">', '', $document->saveHTML()
-        );
+        return $document->saveHTML();
     }
 
     /**
