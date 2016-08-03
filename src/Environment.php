@@ -52,7 +52,7 @@ class Environment
 
         $method = $method[0];
 
-        $event = $event !== '*' ? "amp.$event" : '*';
+        $event = $event !== '*' ? 'amp.'.$event : '*';
 
         $this->eventEmitter->addListener(
             $event, [$listener, $method], $priority
