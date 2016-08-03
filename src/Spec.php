@@ -119,6 +119,10 @@ class Spec
      * @var array
      */
     protected $relation = [
+        '#document' => ['html'],
+
+        'html' => ['head', 'body'],
+
         'head' => [
             'title', 'base', 'link', 'meta', 'style', 'script',
             'noscript',
@@ -317,7 +321,7 @@ class Spec
 
         $hasDot = strpos('.', $element) !== false;
 
-        $element = ! is_null($parent) && ! $hasDot ?
+        $element = !is_null($parent) && !$hasDot ?
             $parent.'.'.$element : $element;
 
         return in_array(
