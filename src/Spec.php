@@ -2,6 +2,8 @@
 
 namespace Predmond\HtmlToAmp;
 
+use InvalidArgumentException;
+
 class Spec
 {
     /**
@@ -280,13 +282,14 @@ class Spec
     /**
      * Check that given element is present in whitelist.
      *
-     * @param string $element
+     * @param string|array $element
      *
      * @return bool
      */
     public function isWhitelisted($element)
     {
-        return in_array($element, $this->getWhitelist());
+        return in_array(
+            is_array($element) ? $element[0] : $element, $this->getWhitelist());
     }
 
     /**
@@ -301,24 +304,50 @@ class Spec
      * Check if given elements has a relation.
      *  
      * @param string|array $element This accepts string key-value pair
-     *                              concatenated by a dot, and array
+     *                              concatenated by a dot, an array
      *                              with a key-value pair, or a normal
-     *                              string representing a child element.
-     * @param null|string  $parent  Parent element. This needs to be set
+     *                              string representing a parent element.
+     * @param null|string  $parent  Child element. This needs to be set
      *                              if the _element_ argument is filled
-     *                              with child element.
+     *                              with parent element as string.
      *
      * @return bool
      */
-    public function isRelated($element, $parent = null)
+    public function isRelated($element, $child = null)
     {
-        $element = is_array($element) ?
-               $this->toDot($element) : $element;
+        if (! is_array($element)) {
+            $element = ! is_null($child) ?
+                $element.'.'.$child : $element;
 
-        $hasDot = strpos('.', $element) !== false;
+            if (strpos($element, '.') === false) {
+                throw new InvalidArgumentException(
+                    "Paremeter '$element' does not contain a dot."
+                );
+            }
 
-        $element = !is_null($parent) && !$hasDot ?
-            $parent.'.'.$element : $element;
+            return in_array($element, $this->getRelation());
+        }
+
+        if (! is_null($child)) {
+           throw new InvalidArgumentException(
+                "Parameter '$child' should be null."
+            );
+        }
+
+        if (count($element) > 1) {
+            return in_array(
+                $element[0].'.'.$element[1], $this->getRelation()
+            );
+        }
+
+        $element = ! isset($element[0]) ?
+            $this->toDot($element)[0] : $element[0];
+
+        if (strpos($element, '.') === false) {
+            throw new InvalidArgumentException(
+                "Paremeter '$element' does not contain a dot."
+            );
+        }
 
         return in_array(
             $element, $this->getRelation()
@@ -343,7 +372,7 @@ class Spec
                     $results[] = $key.'.'.$value;
                 }
             } else {
-                $results[] = $key.'.'.$value;
+                $results[] = $key.'.'.$values;
             }
         }
 
