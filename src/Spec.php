@@ -289,7 +289,8 @@ class Spec
     public function isWhitelisted($element)
     {
         return in_array(
-            is_array($element) ? $element[0] : $element, $this->getWhitelist());
+            is_array($element) ? $element[0] : $element, $this->getWhitelist()
+        );
     }
 
     /**
@@ -312,10 +313,14 @@ class Spec
      *                              with parent element as string.
      *
      * @return bool
+     *
+     * @throws InvalidArgumentException
      */
     public function isRelated($element, $child = null)
     {
         if (! is_array($element)) {
+            //if child is null it will be assumed that the element/parent
+            //has key-value dotted string. Otherwise, error will thrown.
             $element = ! is_null($child) ?
                 $element.'.'.$child : $element;
 
@@ -328,18 +333,24 @@ class Spec
             return in_array($element, $this->getRelation());
         }
 
+        //if element is an array, it should not has the second argument
+        //filled.
         if (! is_null($child)) {
-           throw new InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Parameter '$child' should be null."
             );
         }
 
+        //this for the element with array contained as ['parent', 'child']
         if (count($element) > 1) {
             return in_array(
                 $element[0].'.'.$element[1], $this->getRelation()
             );
         }
 
+        //if the element is an associative array, it will then be
+        //converted to key-value dotted string. If it doesn't, the array
+        //should has value as key-value dotted string.
         $element = ! isset($element[0]) ?
             $this->toDot($element)[0] : $element[0];
 
@@ -349,9 +360,7 @@ class Spec
             );
         }
 
-        return in_array(
-            $element, $this->getRelation()
-        );
+        return in_array($element, $this->getRelation());
     }
 
     /**
